@@ -129,10 +129,16 @@ pub fn initialize_panic_handler() {
 }
 
 fn setup_logger(log_path: &str) {
-    let log_file = Box::new(File::create(log_path).unwrap_or_else(|_| {
-        eprintln!("Failed to open log file: '{log_path}'");
-        std::process::exit(1);
-    }));
+    let log_file = Box::new(
+        File::options()
+            .append(true)
+            .create(true)
+            .open(log_path)
+            .unwrap_or_else(|_| {
+                eprintln!("Failed to open log file: '{log_path}'");
+                std::process::exit(1);
+            }),
+    );
 
     env_logger::builder()
         .filter_level(log::LevelFilter::Info)
