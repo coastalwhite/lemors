@@ -1,0 +1,26 @@
+#!/sbin/openrc-run
+
+# This section is kindly copied from display-manager-init
+depend() {
+	need localmount
+
+	after bootmisc consolefont modules netmount
+	after readahead-list ypbind autofs openvpn gpm lircmd
+	after quota keymaps
+	after elogind
+	after sssd
+	before alsasound
+
+	use dbus xfs
+}
+
+tty=7
+supervisor=supervise-daemon
+command="/usr/bin/openvt"
+command_args="--console ${tty} -e /usr/bin/lemurs"
+# Use -f to ignore processes from past sessions i.e. tmux
+#command_args="-f ${command_args}"
+pidfile="/run/${RC_SVCNAME}.pid"
+respawn_delay=2
+respawn_max=5
+respawn_period=15

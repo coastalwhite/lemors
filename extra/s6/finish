@@ -1,0 +1,2 @@
+#!/bin/execlineb -P
+s6-permafailon 15 5 SIGTERM exit

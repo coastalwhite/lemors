@@ -1,0 +1,51 @@
+#!/bin/sh
+tty=7
+export RC_SVCNAME="lemurs"
+# Linux
+pidfile="/run/${RC_SVCNAME}.pid"
+# Unix
+#pidfile="/var/run/${RC_SVCNAME}.pid"
+# Use -f to ignore processes from past sessions i.e. tmux.
+args="--console ${tty} -e lemurs"
+#args="-f ${args}"
+
+start() {
+	unset XDG_SESSION_TYPE
+	supervise-daemon "${RC_SVCNAME}" -D 1 -m 5 --respawn-period 15 -p "${pidfile}" --start openvt -- ${args}
+}
+
+stop() {
+	supervise-daemon lemurs --stop -p "${pidfile}"
+}
+
+restart() {
+	stop
+	start
+}
+
+status() {
+	if [ -e /run/lemurs.pid ]; then
+		if ps -P $(cat "${pidfile}") &>/dev/null; then
+			echo "Running"
+		else
+			echo "Crashed"
+		fi
+	else
+		echo "Stopped"
+	fi
+}
+
+case "$1" in
+	start)
+		start
+	;;
+	stop)
+		stop
+	;;
+	restart)
+		restart
+	;;
+	status)
+		status
+	;;
+esac
